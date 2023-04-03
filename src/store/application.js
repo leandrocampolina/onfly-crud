@@ -8,6 +8,7 @@ export default createStore({
     user: null,
     userCreateError: null,
     userCreateSuccess: false,
+    pagination: {}
   },
   getters: {
     GET_ALL_USERS(state) {
@@ -16,10 +17,16 @@ export default createStore({
     GET_USER(state) {
       return state.user;
     },
+    GET_PAGINATION(state) {
+      return state.pagination;
+    },
   },
   mutations: {
     SET_ALL_USERS(state, users) {
       state.users = users;
+    },
+    SET_PAGINATION(state, pagination) {
+      state.pagination = pagination;
     },
     SET_USER(state, user) {
       state.user = user;
@@ -46,7 +53,23 @@ export default createStore({
 
       await axios.get(url, config)
         .then((response) => {
-          console.log('response', response.data);
+          this.dispatch('PAGINATION_USERS', response.data.meta.pagination.page);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    async PAGINATION_USERS({ commit }, page) {
+      const token = '9a859e2d69df9482a9145faca351861f4f46cd77726e53694d8e1a97bad66588'
+
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+
+      await axios.get(`https://gorest.co.in/public/v1/users?page=${page}`, config)
+        .then((response) => {
+          commit('SET_PAGINATION', response.data.meta.pagination);
           commit('SET_ALL_USERS', response.data);
         })
         .catch((error) => {
@@ -99,7 +122,6 @@ export default createStore({
       try {
         await axios.patch(`https://gorest.co.in/public/v1/users/${id}`, updates, config)
         .then(response => {
-          console.log('response update', response.data);
           commit('SET_ALL_USERS', response.data);
         })
       } catch (error) {

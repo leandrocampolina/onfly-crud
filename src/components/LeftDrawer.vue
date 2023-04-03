@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header elevated style="background-color: #267FFA">
       <q-toolbar>
         <q-btn
           flat
@@ -10,9 +10,8 @@
           aria-label="Menu"
           icon="menu"
         />
-
-        <q-toolbar-title>
-          Onfly Crud
+        <q-toolbar-title style="height= 100px;">
+          <img width="156" height="48" src="https://www.onfly.com.br/wp-content/uploads/2021/10/onfly-header.svg" class="default-logo" alt="Onfly">
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -20,24 +19,26 @@
       v-model="leftDrawerOpen"
       show-if-above
       bordered
-      style="background-color: #267FFA;"
+      style="
+        background-color: #267FFA;
+        background-image: url(https://www.onfly.com.br/wp-content/uploads/2021/10/bkg-header-main.png);"
     >
       <q-list>
-        <q-item-label class="user-header" style="color: #ffffff" header>Usuários</q-item-label>
-        <q-item clickable @click="sendCreateValue">
+        <q-item-label
+          class="user-header"
+          style="color: #ffffff"
+          header>Users</q-item-label>
+        <q-item
+          clickable
+          @click="sendCreateValue">
           <q-item-section avatar>
-            <q-icon style="margin-left: 3px; color: #ffffff" name="fas fa-user-plus" />
+            <q-icon
+              style="margin-left: 3px; color: #ffffff"
+              name="fas fa-user-plus" />
           </q-item-section>
           <q-item-section>
-            <q-item-label style="color: #ffffff">Novo Usuário</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable tag="a" target="_blank" href="https://github.com/quasarframework/">
-          <q-item-section avatar>
-            <q-icon style="color: #ffffff" name="fas fa-list" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label style="color: #ffffff">Lista de Usuários</q-item-label>
+            <q-item-label
+              style="color: #ffffff">New User</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -58,13 +59,36 @@
         >
         <q-card class="floating-modal">
           <q-card-section>
+            <h5 class="modal-title">New User</h5>
             <q-form @submit.prevent="submitForm">
-              <q-input v-model="name" label="Name" />
-              <q-input v-model="email" label="Email" type="email" />
-              <q-select v-model="gender" label="Gender" :options="genderOptions" />
-              <q-select v-model="status" label="Active" :options="statusOptions"/>
+              <q-input
+                v-model="name"
+                label="Name"
+                :rules="[required, maxLength]"
+                lazy-rules/>
+              <q-input
+                v-model="email"
+                label="Email"
+                type="email"
+                :rules="[required, maxLength, validEmail]"
+                lazy-rules/>
+              <q-select
+                v-model="gender"
+                label="Gender"
+                :options="genderOptions"
+                :rules="[required]"
+                lazy-rules/>
+              <q-select
+                v-model="status"
+                label="Active"
+                :options="statusOptions"
+                :rules="[required]"
+                lazy-rules/>
               <q-card-actions align="right">
-                <q-btn label="Cancel" color="negative" @click="showEditModal = false" />
+                <q-btn
+                  label="Cancel"
+                  color="negative"
+                  @click="showModal = false" />
                 <q-btn @submit.prevent="submitForm" label="Save" type="submit" color="positive" />
               </q-card-actions>
             </q-form>
@@ -78,12 +102,31 @@
         >
         <q-card class="floating-modal">
           <q-card-section>
-            <h5>Edição de Usuário</h5>
+            <h5 class="modal-title">Edit User</h5>
             <q-form @submit.prevent="editUser">
-              <q-input v-model="name" label="Name" />
-              <q-input v-model="email" label="Email" type="email" />
-              <q-select v-model="gender" label="Gender" :options="genderOptions" />
-              <q-select v-model="status" label="Active" :options="statusOptions"/>
+              <q-input
+                v-model="this.rowEditDetails.name"
+                label="Name"
+                :rules="[required, maxLength]"
+                lazy-rules />
+              <q-input
+                v-model="this.rowEditDetails.email"
+                label="Email"
+                type="email"
+                :rules="[required, maxLength, validEmail]"
+                lazy-rules />
+              <q-select
+                v-model="this.rowEditDetails.gender"
+                label="Gender"
+                :options="genderOptions"
+                :rules="[required]"
+                lazy-rules />
+              <q-select
+                v-model="this.rowEditDetails.status"
+                label="Active"
+                :options="statusOptions"
+                :rules="[required]"
+                lazy-rules/>
               <q-card-actions align="right">
                 <q-btn label="Cancel" color="negative" @click="showEditModal = false" />
                 <q-btn @submit.prevent="editUser" label="Save" type="submit" color="positive" />
@@ -99,14 +142,27 @@
         >
         <q-card class="floating-modal">
           <q-card-section>
-            <h5>Detalhes do Usuário</h5>
+            <h5 class="modal-title">Detalhes do Usuário</h5>
             <q-form @submit.prevent="editUser">
-              <q-input readonly v-model="this.rowDetails.name" label="Name" />
-              <q-input readonly v-model="this.rowDetails.email" label="Email" type="email" />
-              <q-select readonly
-              v-model="this.rowDetails.gender" label="Gender" :options="genderOptions" />
-              <q-select readonly
-              v-model="this.rowDetails.status" label="Active" :options="statusOptions"/>
+              <q-input
+                readonly
+                v-model="this.rowDetails.name"
+                label="Name" />
+              <q-input
+                readonly
+                v-model="this.rowDetails.email"
+                label="Email"
+                type="email" />
+              <q-select
+                readonly
+                v-model="this.rowDetails.gender"
+                label="Gender"
+                :options="genderOptions" />
+              <q-select
+                readonly
+                v-model="this.rowDetails.status"
+                label="Active"
+                :options="statusOptions"/>
               <q-card-actions align="right">
                 <q-btn label="Cancel" color="negative" @click="showInfoModal = false" />
               </q-card-actions>
@@ -153,12 +209,20 @@ export default {
   },
 
   methods: {
+    required(value) {
+      return !!value || 'Name is required';
+    },
+    maxLength(value) {
+      return (value && value.length <= 191) || 'Name must be less than or equal to 191 characters';
+    },
+    validEmail(value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(value) || 'Please enter a valid email address';
+    },
     sendCreateValue() {
-      console.log('entrou aqui tbm');
       this.showModal = true;
     },
     deleteUser(id) {
-      console.log('id', id);
       this.$store.dispatch('DELETE_USER_BY_ID', id);
       this.loading = true;
       setTimeout(() => {
@@ -170,7 +234,6 @@ export default {
       await this.$store.dispatch('DETAIL_USER_BY_ID', row.id);
       this.rowDetails = this.$store.state.user;
       this.showInfoModal = true;
-      // this.rowDetails
     },
     editUserModal(row) {
       this.rowEditDetails = row;
@@ -179,23 +242,20 @@ export default {
     },
     editUser() {
       const userInfo = this.rowEditDetails;
-      console.log('userInfo', userInfo);
       this.$store.dispatch('UPDATE_USER_BY_ID', {
         id: userInfo.id,
         updates: {
-          email: this.email,
-          name: this.name,
-          gender: this.gender,
-          status: this.status,
+          email: this.rowEditDetails.email,
+          name: this.rowEditDetails.name,
+          gender: this.rowEditDetails.gender,
+          status: this.rowEditDetails.status,
         },
       });
       this.showEditModal = false;
       this.loading = true;
       setTimeout(() => {
         this.loading = false;
-        window.location.reload();
       }, 1500);
-      console.log('entrou aqui tbm', userInfo);
     },
     submitForm() {
       this.$store.dispatch('CREATE_USER', {
@@ -204,7 +264,6 @@ export default {
         gender: this.gender,
         status: this.status,
       });
-      console.log('entrou aqui');
       this.showModal = false;
       this.loading = true;
       setTimeout(() => {
@@ -230,7 +289,8 @@ export default {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);}
+  transform: translate(-50%, -50%);
+}
 
 .spinner-overlay {
   position: fixed;
@@ -238,5 +298,11 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.modal-title {
+  margin: 0px;
+  display: flex;
+  justify-content: center;
 }
 </style>

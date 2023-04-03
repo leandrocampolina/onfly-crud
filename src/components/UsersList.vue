@@ -1,17 +1,21 @@
 <template>
+  <q-spinner-tail v-if="loading" color="primary" size="100px" class="spinner-overlay" />
   <q-table
     :rows="tableData"
     :columns="tableColumns"
     :filter="filter"
     :sorting="sorting"
-    :pagination="pagination"
+    v-model:pagination="pagination"
     body-style="font-size: 14px;"
   >
     <!-- <template v-slot:top>
       <q-input v-model="filter" label="Pesquisar" />
     </template> -->
+    <template v-slot:top-left>
+      <q-input v-model="search" label="Search" />
+    </template>
     <template v-slot:top-right>
-      <q-btn class="new-user" @click="createNewUser">Novo Usuário</q-btn>
+      <q-btn class="new-user" @click="createNewUser">New User</q-btn>
     </template>
     <template v-slot:body-cell-details="props">
       <q-td style="width: 10px" :props="props">
@@ -33,17 +37,21 @@
           @click="deleteRow(props.row)"></q-icon>
       </q-td>
     </template>
-    <!-- <template #body-cell-edit="{ value: id }">
-      <q-icon name="fas fa-pen" class="cursor-pointer" @click="editRow(id)" />
+    <template v-slot:bottom>
+      <q-pagination
+        v-model="pagination.page"
+        :min="1"
+        :max="pagination.rowsNumber"
+        :input="true"
+        @update:model-value="updatePagination"
+      />
     </template>
-
-    <template #body-cell-delete="{ value: id }">
-      <q-icon name="fas fa-trash" style="color: #fd0808" @click="deleteRow(id)" />
-    </template> -->
   </q-table>
 </template>
 
 <script>
+/* eslint-disable */
+import axios from 'axios';
 
 export default {
   data() {
@@ -64,7 +72,7 @@ export default {
         },
         {
           name: 'name',
-          label: 'Nome',
+          label: 'Name',
           align: 'left',
           field: 'name',
           sortable: true,
@@ -78,7 +86,7 @@ export default {
         },
         {
           name: 'gender',
-          label: 'Gênero',
+          label: 'Gender',
           align: 'left',
           field: 'gender',
           sortable: true,
@@ -92,7 +100,7 @@ export default {
         },
         {
           name: 'actions',
-          label: 'Action',
+          label: 'Actions ',
           align: 'center',
         },
       ],
@@ -103,7 +111,14 @@ export default {
       },
       pagination: {
         rowsPerPage: 10,
+        page: 1,
+        rowsNumber: 0,
       },
+      previousPage: '',
+      CurrentPage: '',
+      nextPage: '',
+      loading: false,
+      search: '',
     };
   },
 
@@ -111,6 +126,11 @@ export default {
     await this.fetchData();
   },
 
+  watch: {
+    search() {
+      this.getUsers();
+    },
+  },
   computed: {
     GETTERS() {
       return this.$store.getters;
@@ -121,32 +141,59 @@ export default {
   },
 
   methods: {
+    async getUsers() {
+      try {
+        const response = await axios.get(`https://gorest.co.in/public/v1/users?name=${this.search}`);
+        setTimeout(() => {
+          this.tableData = response.data.data;
+        }, 1500);
+        this.loading = false;
+      } catch (error) {
+        console.error(error);
+      }
+    },
     fetchData() {
       this.ACTIONS('FETCH_ALL_USERS');
       setTimeout(() => {
+        this.pagination.rowsPerPage = this.GETTERS.GET_PAGINATION.limit;
+        this.pagination.page = this.GETTERS.GET_PAGINATION.page;
+        this.pagination.rowsNumber = this.GETTERS.GET_PAGINATION.pages;
+        this.previousPage = this.GETTERS.GET_PAGINATION.links.previous;
+        this.currentPage = this.GETTERS.GET_PAGINATION.links.current;
+        this.nextPage = this.GETTERS.GET_PAGINATION.links.next;
+        this.loadData();
+      }, 1700);
+    },
+
+    loadData() {
+      if (this.pagination.rowsNumber > 0) {
         this.tableData = this.GETTERS.GET_ALL_USERS.data;
-        console.log('tabledata', this.tableData);
-      }, 2000);
+      }
+    },
+
+    updatePagination(page) {
+      this.loading = true;
+      this.$store.dispatch('PAGINATION_USERS', page);
+      setTimeout(() => {
+        this.tableData = this.GETTERS.GET_ALL_USERS.data;
+        this.loading = false;
+      }, 1000);
     },
 
     createNewUser() {
-      console.log('entrouiii');
       this.$emit('new-user', true);
     },
 
     editRow(row) {
       this.$emit('edit-user', row);
-      console.log('Editar linha com ID:', row);
     },
 
     deleteRow(row) {
       this.$emit('delete-user', row.id);
-      console.log('Excluir linha com ID:', row.id);
     },
 
     detailsRow(row) {
       this.$emit('info-user', row);
-      console.log('Detalhes da linha', row);
     },
   },
 };
@@ -163,5 +210,13 @@ export default {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
+}
+
+.spinner-overlay {
+  position: absolute;
+  z-index: 99999;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>
