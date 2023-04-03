@@ -1,5 +1,5 @@
 <template>
-  <q-spinner-tail v-if="loading" color="primary" size="100px" class="spinner-overlay" />
+  <loading-app />
   <q-table
     :rows="tableData"
     :columns="tableColumns"
@@ -49,8 +49,15 @@
 <script>
 /* eslint-disable */
 import axios from 'axios';
+import LoadingApp from './LoadingApp.vue';
 
 export default {
+  name: 'UsersList',
+
+  components: {
+    LoadingApp,
+  },
+  
   data() {
     return {
       tableData: [],
@@ -111,10 +118,6 @@ export default {
         page: 1,
         rowsNumber: 0,
       },
-      previousPage: '',
-      CurrentPage: '',
-      nextPage: '',
-      loading: false,
       search: '',
     };
   },
@@ -135,6 +138,9 @@ export default {
     ACTIONS() {
       return this.$store.dispatch;
     },
+    MUTATION() {
+      return this.$store.commit;
+    },
   },
 
   methods: {
@@ -144,22 +150,18 @@ export default {
         setTimeout(() => {
           this.tableData = response.data.data;
         }, 1500);
-        this.loading = false;
       } catch (error) {
         console.error(error);
       }
     },
-    fetchData() {
-      this.ACTIONS('FETCH_ALL_USERS');
+    async fetchData() {
+      await this.ACTIONS('FETCH_ALL_USERS');
       setTimeout(() => {
         this.pagination.rowsPerPage = this.GETTERS.GET_PAGINATION.limit;
         this.pagination.page = this.GETTERS.GET_PAGINATION.page;
         this.pagination.rowsNumber = this.GETTERS.GET_PAGINATION.pages;
-        this.previousPage = this.GETTERS.GET_PAGINATION.links.previous;
-        this.currentPage = this.GETTERS.GET_PAGINATION.links.current;
-        this.nextPage = this.GETTERS.GET_PAGINATION.links.next;
         this.loadData();
-      }, 1700);
+      }, 1500);
     },
 
     loadData() {
@@ -169,11 +171,9 @@ export default {
     },
 
     updatePagination(page) {
-      this.loading = true;
       this.$store.dispatch('PAGINATION_USERS', page);
       setTimeout(() => {
         this.tableData = this.GETTERS.GET_ALL_USERS.data;
-        this.loading = false;
       }, 1000);
     },
 

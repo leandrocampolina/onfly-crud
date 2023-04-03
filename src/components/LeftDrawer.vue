@@ -50,7 +50,7 @@
         @delete-user="deleteUser"
         @edit-user="editUserModal"
         @info-user="infoUserModal"/>
-        <q-spinner-tail v-if="loading" color="primary" size="100px" class="spinner-overlay" />
+        <loading-app />
       </q-page>
     </q-page-container>
     <q-page-container>
@@ -208,6 +208,12 @@ export default {
     };
   },
 
+  computed: {
+    MUTATION() {
+      return this.$store.commit;
+    },
+  },
+
   methods: {
     required(value) {
       return !!value || 'Name is required';
@@ -224,9 +230,8 @@ export default {
     },
     deleteUser(id) {
       this.$store.dispatch('DELETE_USER_BY_ID', id);
-      this.loading = true;
+      this.MUTATION('SET_LOADING', true);
       setTimeout(() => {
-        this.loading = false;
         window.location.reload();
       }, 1000);
     },
@@ -252,9 +257,9 @@ export default {
         },
       });
       this.showEditModal = false;
-      this.loading = true;
+      this.MUTATION('SET_LOADING', true);
       setTimeout(() => {
-        this.loading = false;
+        this.MUTATION('SET_LOADING', false);
       }, 1500);
     },
     submitForm() {
@@ -265,9 +270,8 @@ export default {
         status: this.status,
       });
       this.showModal = false;
-      this.loading = true;
+      this.MUTATION('SET_LOADING', true);
       setTimeout(() => {
-        this.loading = false;
         window.location.reload();
       }, 1500);
     },

@@ -8,7 +8,8 @@ export default createStore({
     user: null,
     userCreateError: null,
     userCreateSuccess: false,
-    pagination: {}
+    pagination: {},
+    loading: false,
   },
   getters: {
     GET_ALL_USERS(state) {
@@ -39,10 +40,14 @@ export default createStore({
     },
     DELETE_USER (state, id) {
       state.users = state.users.filter(user => user.id !== id)
+    },
+    SET_LOADING (state, loading) {
+      state.loading = loading;
     }
   },
   actions: {
     async FETCH_ALL_USERS({ commit }) {
+      commit('SET_LOADING', true);
       const url = 'https://gorest.co.in/public/v1/users';
 
       const token = '9a859e2d69df9482a9145faca351861f4f46cd77726e53694d8e1a97bad66588'
@@ -54,6 +59,7 @@ export default createStore({
       await axios.get(url, config)
         .then((response) => {
           this.dispatch('PAGINATION_USERS', response.data.meta.pagination.page);
+          commit('SET_LOADING', false);
         })
         .catch((error) => {
           console.log(error);
@@ -61,6 +67,7 @@ export default createStore({
     },
 
     async PAGINATION_USERS({ commit }, page) {
+      commit('SET_LOADING', true);
       const token = '9a859e2d69df9482a9145faca351861f4f46cd77726e53694d8e1a97bad66588'
 
       const config = {
@@ -71,6 +78,7 @@ export default createStore({
         .then((response) => {
           commit('SET_PAGINATION', response.data.meta.pagination);
           commit('SET_ALL_USERS', response.data);
+          commit('SET_LOADING', false);
         })
         .catch((error) => {
           console.log(error);
@@ -97,7 +105,6 @@ export default createStore({
     },
 
     async DELETE_USER_BY_ID({ commit }, id) {
-
       const token = '9a859e2d69df9482a9145faca351861f4f46cd77726e53694d8e1a97bad66588'
 
       const config = {
