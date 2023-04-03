@@ -1,5 +1,11 @@
 # onfly-crud
 
+#### CRUD de Usuários que permite: 
+  - Verificar os detalhes de todos os usuários que são buscados de uma api
+  - Criar Usuários
+  - Editar Usuários
+  - Deletar Usuários
+
 ## Project setup
 ```
 npm install
