@@ -8,9 +8,6 @@
     v-model:pagination="pagination"
     body-style="font-size: 14px;"
   >
-    <!-- <template v-slot:top>
-      <q-input v-model="filter" label="Pesquisar" />
-    </template> -->
     <template v-slot:top-left>
       <q-input v-model="search" label="Search" />
     </template>

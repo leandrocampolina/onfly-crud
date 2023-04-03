@@ -142,7 +142,7 @@
         >
         <q-card class="floating-modal">
           <q-card-section>
-            <h5 class="modal-title">Detalhes do Usuário</h5>
+            <h5 class="modal-title">User Datails</h5>
             <q-form @submit.prevent="editUser">
               <q-input
                 readonly
