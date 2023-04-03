@@ -156,19 +156,17 @@ export default {
     },
     async fetchData() {
       await this.ACTIONS('FETCH_ALL_USERS');
-      this.MUTATION('SET_LOADING', true);
+      setTimeout(() => {
         this.pagination.rowsPerPage = this.GETTERS.GET_PAGINATION.limit;
         this.pagination.page = this.GETTERS.GET_PAGINATION.page;
         this.pagination.rowsNumber = this.GETTERS.GET_PAGINATION.pages;
         this.loadData();
+      }, 1500);
     },
 
     loadData() {
       if (this.pagination.rowsNumber > 0) {
         this.tableData = this.GETTERS.GET_ALL_USERS.data;
-        if (!this.tableData) {
-          this.MUTATION('SET_LOADING', false);
-        }
       }
     },
 
